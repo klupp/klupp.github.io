@@ -158,6 +158,7 @@
         };
 
         function highlightFeature(e) {
+            geojson.resetStyle();
             var layer = e.target;
 
             layer.setStyle({
@@ -175,7 +176,7 @@
         }
 
         function resetHighlight(e) {
-            geojson.resetStyle(e.target);
+            geojson.resetStyle();
             info.update();
         }
 
@@ -185,9 +186,9 @@
 
         function onEachFeature(feature, layer) {
             layer.on({
-                mouseover: highlightFeature,
-                mouseout: resetHighlight,
-                click: zoomToFeature
+                // mouseover: highlightFeature,
+                // mouseout: resetHighlight,
+                click: highlightFeature
             });
         }
 
