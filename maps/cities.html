@@ -83,7 +83,6 @@
             val = Math.log10(d + 1);
 
             res = ((val - min_log) / (max_log - min_log)) * 0.8 + 0.01;
-            console.log(res);
             return res;
         }
 
@@ -177,7 +176,7 @@
         legend.onAdd = function (map) {
 
             var div = L.DomUtil.create('div', 'info legend'),
-                grades = Array.from({length: 10}, (x,i) => (i/9) * maxx + minn),
+                grades = Array.from({length: 10}, (x,i) => Math.floor((i/9) * (maxx) + minn)),
                 labels = [];
 
             div.innerHTML += 'Број активни случаи<br>';
