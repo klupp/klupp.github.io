@@ -188,7 +188,8 @@
             layer.on({
                 // mouseover: highlightFeature,
                 // mouseout: resetHighlight,
-                click: highlightFeature
+                click: highlightFeature,
+                touch: highlightFeature
             });
         }
 
@@ -204,14 +205,15 @@
 
         legend.onAdd = function (map) {
 
+            num_cols = 6;
             var div = L.DomUtil.create('div', 'info legend'),
-                grades = Array.from({length: 10}, (x,i) => Math.floor((i/9) * (maxx) + minn)),
+                grades = Array.from({length: num_cols}, (x,i) => Math.floor((i/(num_cols - 1)) * (maxx) + minn)),
                 labels = [];
 
             div.innerHTML += general_legend;
             div.innerHTML += '<b>Број активни случаи</b><br>';
             // loop through our density intervals and generate a label with a colored square for each interval
-            for (var i = 0; i < 10; i++) {
+            for (var i = 0; i < num_cols; i++) {
                 div.innerHTML +=
                     '<i style="background: '+ getColor(grades[i]) + '; opacity: ' + getOpacity(grades[i]) + '"></i> ' +
                     grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
