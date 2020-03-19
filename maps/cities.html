@@ -69,8 +69,8 @@
 
         maxx = Math.max.apply(Math, mk_cities_covid.responseJSON.features.map(function(o) { return o.properties.count; }));
         minn = Math.min.apply(Math, mk_cities_covid.responseJSON.features.map(function(o) { return o.properties.count; }));
-        min_log = Math.log2(minn + 1);
-        max_log = Math.log2(maxx + 1);
+        min_log = Math.log10(minn + 1);
+        max_log = Math.log10(maxx + 1);
         function getColor(d) {
             var color = d3.scale.linear()
                 .domain([minn, maxx])
@@ -80,9 +80,10 @@
         }
 
         function getOpacity(d) {
-            val = Math.log2(d + 1);
+            val = Math.log10(d + 1);
 
-            res = ((d - minn) / (maxx - minn)) * 0.6 + 0.1;
+            res = ((val - min_log) / (max_log - min_log)) * 0.8 + 0.01;
+            console.log(res);
             return res;
         }
 
