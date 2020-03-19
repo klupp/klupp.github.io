@@ -205,7 +205,7 @@
 
         legend.onAdd = function (map) {
 
-            num_cols = 6;
+            num_cols = 5;
             var div = L.DomUtil.create('div', 'info legend'),
                 grades = Array.from({length: num_cols}, (x,i) => Math.floor((i/(num_cols - 1)) * (maxx) + minn)),
                 labels = [];
