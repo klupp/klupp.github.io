@@ -49,6 +49,7 @@
             integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
             crossorigin=""></script>
     <script type="application/javascript" src="https://raw.githubusercontent.com/calvinmetcalf/leaflet-ajax/master/dist/leaflet.ajax.min.js"></script>
+    <script type="application/javascript" src="https://github.com/leaflet-extras/leaflet-providers"></script>
 
     <script src="https://d3js.org/d3.v3.js"></script>
 
@@ -58,15 +59,9 @@
 
     var mymap = L.map('mapid').setView([41.6086, 21.7453], 8);
 
-
-
-    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    L.tileLayer('https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
         maxZoom: 18,
-        id: 'mapbox/streets-v11',
-        tileSize: 512,
-        zoomOffset: -1,
-        accessToken: 'pk.eyJ1IjoiYWxrdXptYW4iLCJhIjoiY2s3ejF1NzQxMDFxaDNmbG5hZHZwMGJvcSJ9.kb13A3FHS8ruLv9FjOVfCQ'
+        attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(mymap);
 
     var general_legend = '<i style="width: 15px; border-top:3px solid red; border-bottom:4px dashed red; border-left:3px solid red; border-right:3px dashed red; margin-right: 5px; width: 12px; height: 10px;"></i>Карантин</br>';
@@ -83,14 +78,23 @@
     var quarantine = $.ajax({
         url:"https://raw.githubusercontent.com/klupp/opendata/master/mk/covid19/maps/covid-quarantine.geojson",
         dataType: "json",
-        success: console.log("Covid data successfully loaded."),
+        success: console.log("Quarantine data successfully loaded."),
         error: function (xhr) {
             alert(xhr.statusText)
         }
     });
 
-    $.when(quarantine).done(function() {
-        function style(feature) {
+    var hospitals = $.ajax({
+        url:"https://raw.githubusercontent.com/klupp/opendata/master/mk/covid19/maps/summary_hospital.geojson",
+        dataType: "json",
+        success: console.log("Hospital summary data successfully loaded."),
+        error: function (xhr) {
+            alert(xhr.statusText)
+        }
+    });
+
+    $.when(mk_cities_covid, quarantine, hospitals).done(function() {
+        function quarantine_style(feature) {
             return {
                 weight:5,
                 opacity: 1,
@@ -99,18 +103,18 @@
             };
         }
 
-        L.geoJSON(quarantine.responseJSON,
+        quarantineGeoJson = L.geoJSON(quarantine.responseJSON,
             {
-                style: style
+                style: quarantine_style
             }).addTo(mymap);
-    });
-
-    $.when(mk_cities_covid).done(function() {
 
         maxx = Math.max.apply(Math, mk_cities_covid.responseJSON.features.map(function(o) { return o.properties.count; }));
         minn = Math.min.apply(Math, mk_cities_covid.responseJSON.features.map(function(o) { return o.properties.count; }));
         min_log = Math.log10(minn + 1);
         max_log = Math.log10(maxx + 1);
+        hospitals_min = Math.min.apply(Math, mk_cities_covid.responseJSON.features.map(function(o) { return o.properties.count; }));
+        hospitals_max = Math.max.apply(Math, mk_cities_covid.responseJSON.features.map(function(o) { return o.properties.count; }));
+
         function getColor(d) {
             var color = d3.scale.linear()
                 .domain([minn, maxx])
@@ -130,15 +134,21 @@
         function style(feature) {
             return {
                 fillColor: getColor(feature.properties.count),
-                weight: 0.3,
+                weight: 0.5,
                 opacity: 1,
                 color: 'black',
-                dashArray: '3',
                 fillOpacity: getOpacity(feature.properties.count)
             };
         }
 
         var geojson;
+        var hospitalsGeoJson;
+
+        function reset() {
+            geojson.resetStyle();
+            hospitalsGeoJson.resetStyle();
+            info.update();
+        }
 
         var info = L.control();
 
@@ -151,7 +161,6 @@
         // method that we will use to update the control based on feature properties passed
 
         info.update = function (props) {
-            console.log(props)
             this._div.innerHTML = (props ?
                 `
                     <h4>${props.id}:</h4>
@@ -172,17 +181,13 @@
                             <td>${props.count_dead}</span></td>
                             <td>Мртви</td>
                         </tr>
-                        <tr style="color: gray; font-weight: bold">
-                            <td>${props.population}</span></td>
-                            <td>Популација</td>
-                        </tr>
                     </table>
                 `
                 : 'Кликни на општина');
         };
 
         function highlightFeature(e) {
-            geojson.resetStyle();
+            reset();
             var layer = e.target;
 
             layer.setStyle({
@@ -197,11 +202,6 @@
                 layer.bringToFront();
             }
             info.update(layer.feature.properties);
-        }
-
-        function resetHighlight(e) {
-            geojson.resetStyle();
-            info.update();
         }
 
         function zoomToFeature(e) {
@@ -226,6 +226,36 @@
         info.addTo(mymap);
 
         var legend = L.control({position: 'bottomright'});
+
+        function clickHospital(e) {
+            reset();
+            var layer = e.target;
+            info.update(layer.feature.properties);
+        }
+
+        function onEachFeatureHospitals(feature, layer) {
+            layer.on({
+                // mouseover: highlightFeature,
+                // mouseout: resetHighlight,
+                click: clickHospital,
+                touch: clickHospital
+            });
+        }
+
+
+        hospitalsGeoJson = L.geoJSON(hospitals.responseJSON,
+        {
+            pointToLayer: function (feature, latlng) {
+                scale = Math.log10(feature.properties.count + 1) + 1;
+                console.log(scale);
+                return L.marker(latlng, {icon: L.icon({
+                        iconUrl: 'https://klupp.github.io/COVID19/Macedonia/maps/map.html/hospital.png',
+                        iconSize: [10 * scale, 10 * scale],
+                        shadowSize: [10, 10],
+                    })});
+            },
+            onEachFeature: onEachFeatureHospitals
+        }).addTo(mymap);
 
         legend.onAdd = function (map) {
 
@@ -252,6 +282,21 @@
 
             return div;
         };
+
+        var geoJsonLayerr = {
+            "Оптини": geojson
+        };
+
+        var hospitalsGeoJsonLayerr = {
+            "Болници": hospitalsGeoJson
+
+        };
+
+        // var hospitalsGeoJsonLayerr = {
+        //     "Карантин": quarantine
+        // };
+
+        L.control.layers(geoJsonLayerr, hospitalsGeoJsonLayerr, {position: 'bottomleft'}).addTo(mymap);
 
         legend.addTo(mymap);
     });
