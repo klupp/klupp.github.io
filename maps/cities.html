@@ -69,7 +69,7 @@
         accessToken: 'pk.eyJ1IjoiYWxrdXptYW4iLCJhIjoiY2s3ejF1NzQxMDFxaDNmbG5hZHZwMGJvcSJ9.kb13A3FHS8ruLv9FjOVfCQ'
     }).addTo(mymap);
 
-    var general_legend = '<b>Карантин</b><hr style="width: auto; border-bottom:4px solid red">'
+    var general_legend = '<i style="width: 15px; border-top:3px solid red; border-bottom:4px dashed red; border-left:3px solid red; border-right:3px dashed red; margin-right: 5px; width: 12px; height: 10px;"></i>Карантин</br>';
 
     var mk_cities_covid = $.ajax({
         url:"https://raw.githubusercontent.com/klupp/opendata/master/mk/covid19/maps/mk_municipalities_covid.geojson",
@@ -155,7 +155,7 @@
             this._div.innerHTML = (props ?
                 `
                     <h4>${props.id}:</h4>
-                    <table style="font-size: 12pt;">
+                    <table style="font-size: 12pt; border-spacing: 10px 0; ">
                         <tr style="color: darkgoldenrod; font-weight: bold">
                             <td>${props.count}</td>
                             <td>Активни</td>
@@ -172,7 +172,7 @@
                             <td>${props.count_dead}</span></td>
                             <td>Мртви</td>
                         </tr>
-                        <tr>
+                        <tr style="color: gray; font-weight: bold">
                             <td>${props.population}</span></td>
                             <td>Популација</td>
                         </tr>
@@ -235,7 +235,7 @@
                 labels = [];
 
             div.innerHTML += general_legend;
-            var table = '<b>Број активни случаи</b><br><table cellspacing="0">';
+            var table = '<b><u>Број Aктивни</b></u><br><table cellspacing="0">';
             // loop through our density intervals and generate a label with a colored square for each interval
             for (var i = 0; i < num_cols; i++) {
                 table += `
