@@ -267,8 +267,9 @@ div#notebook {
 
 
                         <div class="output_subarea output_widget_view ">
-                            <div class="js-nbinteract-widget">
-                            </div>
+                            <button class="js-nbinteract-widget">
+                                Покажи статистика
+                            </button>
                         </div>
 
                     </div>
@@ -288,6 +289,8 @@ div#notebook {
                 setTimeout(setupNbinteract, 1000);
                 return
             }
+
+            console.log('tuka');
 
             var interact = new window.NbInteract({
                 spec: 'VikiPeeva/coronavirus-macedonia-tryouts/master',
