@@ -243,19 +243,19 @@
         }
 
 
-        hospitalsGeoJson = L.geoJSON(hospitals.responseJSON,
-        {
-            pointToLayer: function (feature, latlng) {
-                scale = Math.log10(feature.properties.count + 1) + 1;
-                console.log(scale);
-                return L.marker(latlng, {icon: L.icon({
-                        iconUrl: 'https://github.com/klupp/klupp.github.io/raw/master/COVID19/Macedonia/maps/hospital.png',
-                        iconSize: [10 * scale, 10 * scale],
-                        shadowSize: [10, 10],
-                    })});
-            },
-            onEachFeature: onEachFeatureHospitals
-        }).addTo(mymap);
+        // hospitalsGeoJson = L.geoJSON(hospitals.responseJSON,
+        // {
+        //     pointToLayer: function (feature, latlng) {
+        //         scale = Math.log10(feature.properties.count + 1) + 1;
+        //         console.log(scale);
+        //         return L.marker(latlng, {icon: L.icon({
+        //                 iconUrl: 'https://github.com/klupp/klupp.github.io/raw/master/COVID19/Macedonia/maps/hospital.png',
+        //                 iconSize: [10 * scale, 10 * scale],
+        //                 shadowSize: [10, 10],
+        //             })});
+        //     },
+        //     onEachFeature: onEachFeatureHospitals
+        // }).addTo(mymap);
 
         legend.onAdd = function (map) {
 
@@ -296,7 +296,7 @@
         //     "Карантин": quarantine
         // };
 
-        L.control.layers(geoJsonLayerr, hospitalsGeoJsonLayerr, {position: 'bottomleft'}).addTo(mymap);
+        L.control.layers(geoJsonLayerr, {position: 'bottomleft'}).addTo(mymap);
 
         legend.addTo(mymap);
     });
