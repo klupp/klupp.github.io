@@ -1,45 +1,50 @@
 <!DOCTYPE html>
 <html lang="mk">
 <head>
-    <meta charset="utf-8" />
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-            crossorigin="anonymous"></script>
+	<meta charset="utf-8"/>
+	<link rel="stylesheet" href="../css/tooltip.css"/>
+	<script crossorigin="anonymous" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+			src="https://code.jquery.com/jquery-3.3.1.slim.min.js">
+	</script>
+	<title>
+		cases-by-country-lineplot
+	</title>
+	<style type="text/css">
+		/* Overrides of notebook CSS for static HTML export */
+		body {
+			overflow: visible;
+			padding: 8px;
+		}
 
-<title>cases-by-country-lineplot</title>
+		div#notebook {
+			overflow: visible;
+			border-top: none;
+		}
 
-<style type="text/css">
-/* Overrides of notebook CSS for static HTML export */
-body {
-  overflow: visible;
-  padding: 8px;
-}
+		@media print {
+			div.cell {
+				display: block;
+				page-break-inside: avoid;
+			}
 
-div#notebook {
-  overflow: visible;
-  border-top: none;
-}@media print {
-  div.cell {
-    display: block;
-    page-break-inside: avoid;
-  }
-  div.output_wrapper {
-    display: block;
-    page-break-inside: avoid;
-  }
-  div.output {
-    display: block;
-    page-break-inside: avoid;
-  }
-}
-</style>
+			div.output_wrapper {
+				display: block;
+				page-break-inside: avoid;
+			}
 
-<!-- Loading mathjax macro -->
-<!-- Load mathjax -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_HTML"></script>
-    <!-- MathJax configuration -->
-    <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
+			div.output {
+				display: block;
+				page-break-inside: avoid;
+			}
+		}
+	</style>
+	<!-- Loading mathjax macro -->
+	<!-- Load mathjax -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_HTML">
+	</script>
+	<!-- MathJax configuration -->
+	<script type="text/x-mathjax-config">
+   MathJax.Hub.Config({
         tex2jax: {
             inlineMath: [ ['$','$'], ["\\(","\\)"] ],
             displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
@@ -54,256 +59,363 @@ div#notebook {
             linebreaks: { automatic: true }
         }
     });
-    </script>
-    <!-- End of mathjax configuration -->
 
-<style>
-    .cell.nbinteract-hide_in > .input {
-        display: none;
-    }
+	</script>
+	<!-- End of mathjax configuration -->
+	<style>
+		.cell.nbinteract-hide_in > .input {
+			display: none;
+		}
 
-    .cell.nbinteract-hide_out > .output_wrapper {
-            display: none;
-        }
+		.cell.nbinteract-hide_out > .output_wrapper {
+			display: none;
+		}
 
-        .cell:after {
-          content: "";
-          display: table;
-          clear: both;
-        }
+		.cell:after {
+			content: "";
+			display: table;
+			clear: both;
+		}
 
-        div.output_subarea {
-            max-width: initial;
-        }
-
-</style></head>
+		div.output_subarea {
+			max-width: initial;
+		}
+	</style>
+</head>
 <body>
-  <div tabindex="-1" id="notebook" class="border-box-sizing">
-    <div class="container">
-
-        <div class="cell nbinteract-hide_in border-box-sizing code_cell rendered">
-            <div class="input">
-
-                <div class="inner_cell">
-                    <div class="input_area">
-                        <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="border-box-sizing" id="notebook" tabindex="-1">
+	<div class="container">
+		<div class="cell border-box-sizing code_cell rendered nbinteract-hide_in">
+			<div class="input">
+				<div class="inner_cell">
+					<div class="input_area">
+						<div class="highlight hl-ipython3">
+         <pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span
+				 class="nn">pd</span>
 <span class="c1"># import nbinteract as nbi</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span
+					 class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">matplotlib.ticker</span> <span class="k">as</span> <span class="nn">ticker</span>
 <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
-<span class="kn">import</span> <span class="nn">ipywidgets</span> <span class="k">as</span> <span class="nn">widgets</span>
-<span class="kn">from</span> <span class="nn">ipywidgets</span> <span class="kn">import</span> <span class="n">interact</span><span class="p">,</span> <span class="n">fixed</span>
+<span class="kn">import</span> <span class="nn">ipywidgets</span> <span class="k">as</span> <span
+					 class="nn">widgets</span>
+<span class="kn">from</span> <span class="nn">ipywidgets</span> <span class="kn">import</span> <span
+					 class="n">interact</span><span class="p">,</span> <span class="n">fixed</span>
 
 <span class="o">%</span><span class="k">matplotlib</span> inline
-</pre></div>
+</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="cell border-box-sizing code_cell rendered nbinteract-hide_in">
+			<div class="input">
+				<div class="inner_cell">
+					<div class="input_area">
+						<div class="highlight hl-ipython3">
+         <pre><span></span><span class="n">all_data</span> <span class="o">=</span> <span class="n">pd</span><span
+				 class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"</span><span
+				 class="p">)</span>
+<span class="n">all_data</span> <span class="o">=</span> <span class="n">all_data</span><span class="o">.</span><span
+					 class="n">replace</span><span class="p">(</span><span class="s1">'North Macedonia'</span><span
+					 class="p">,</span> <span class="s1">'Macedonia'</span><span class="p">)</span>
+<span class="n">all_data</span> <span class="o">=</span> <span class="n">all_data</span><span class="o">.</span><span
+					 class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span
+					 class="p">[</span><span class="s1">'Province/State'</span><span class="p">,</span> <span
+					 class="s1">'Lat'</span><span class="p">,</span> <span class="s1">'Long'</span><span
+					 class="p">],</span> <span class="n">axis</span><span class="o">=</span><span
+					 class="mi">1</span><span class="p">)</span>
+<span class="n">all_data</span> <span class="o">=</span> <span class="n">all_data</span><span class="o">.</span><span
+					 class="n">groupby</span><span class="p">([</span><span class="s1">'Country/Region'</span><span
+					 class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">all_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span
+					 class="n">level</span><span class="o">=</span><span class="mi">0</span><span
+					 class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span
+					 class="kc">True</span><span class="p">)</span>
+</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="cell border-box-sizing code_cell rendered nbinteract-hide_in">
+			<div class="input">
+				<div class="inner_cell">
+					<div class="input_area">
+						<div class="highlight hl-ipython3">
+         <pre><span></span><span class="k">def</span> <span class="nf">get_data_by_country_name</span><span
+				 class="p">(</span><span class="n">data</span><span class="p">,</span> <span
+				 class="n">country_column</span><span class="p">,</span> <span class="n">country_name</span><span
+				 class="p">):</span>
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span
+					 class="p">[</span><span class="n">data</span><span class="p">[</span><span
+					 class="n">country_column</span><span class="p">]</span> <span class="o">==</span> <span class="n">country_name</span><span
+					 class="p">]</span>
 
-                    </div>
-                </div>
-            </div>
 
-        </div>
+<span class="k">def</span> <span class="nf">convert_data_in_day_count_larger_than_zero_format</span><span
+					 class="p">(</span><span class="n">data</span><span class="p">,</span> <span
+					 class="n">id_vars</span><span class="p">,</span> <span class="n">value_vars</span><span
+					 class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">value_name</span><span
+					 class="p">):</span>
+    <span class="n">converted</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span
+					 class="n">melt</span><span class="p">(</span><span class="n">data</span><span
+					 class="p">,</span> <span class="n">id_vars</span><span class="o">=</span><span
+					 class="n">id_vars</span><span class="p">,</span> <span class="n">value_vars</span><span
+					 class="o">=</span><span class="n">value_vars</span><span class="p">,</span> <span class="n">var_name</span><span
+					 class="o">=</span><span class="n">var_name</span><span class="p">,</span> <span class="n">value_name</span><span
+					 class="o">=</span><span class="n">value_name</span><span class="p">)</span>
+    <span class="n">converted</span> <span class="o">=</span> <span class="n">converted</span><span
+					 class="o">.</span><span class="n">loc</span><span class="p">[</span><span
+					 class="n">converted</span><span class="p">[</span><span class="n">value_name</span><span class="p">]</span> <span
+					 class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span
+					 class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span
+					 class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">converted</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span
+					 class="mi">0</span><span class="p">,</span> <span class="s1">'artificial_day'</span><span
+					 class="p">,</span> <span class="nb">range</span><span class="p">(</span><span
+					 class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span
+					 class="o">+</span> <span class="nb">len</span><span class="p">(</span><span
+					 class="n">converted</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">converted</span><span class="o">.</span><span
+					 class="n">loc</span><span class="p">[</span><span class="n">converted</span><span
+					 class="p">[</span><span class="n">value_name</span><span class="p">]</span> <span
+					 class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span
+					 class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span
+					 class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-
-
-        <div class="nbinteract-hide_in cell border-box-sizing code_cell rendered">
-            <div class="input">
-
-                <div class="inner_cell">
-                    <div class="input_area">
-                        <div class=" highlight hl-ipython3"><pre><span></span><span class="n">all_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv&quot;</span><span class="p">)</span>
-<span class="n">all_data</span> <span class="o">=</span> <span class="n">all_data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;North Macedonia&#39;</span><span class="p">,</span> <span class="s1">&#39;Macedonia&#39;</span><span class="p">)</span>
-<span class="n">all_data</span> <span class="o">=</span> <span class="n">all_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Province/State&#39;</span><span class="p">,</span> <span class="s1">&#39;Lat&#39;</span><span class="p">,</span> <span class="s1">&#39;Long&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">all_data</span> <span class="o">=</span> <span class="n">all_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;Country/Region&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-<span class="n">all_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-
-
-        <div class="nbinteract-hide_in cell border-box-sizing code_cell rendered">
-            <div class="input">
-
-                <div class="inner_cell">
-                    <div class="input_area">
-                        <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_data_by_country_name</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">country_column</span><span class="p">,</span> <span class="n">country_name</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">country_column</span><span class="p">]</span> <span class="o">==</span> <span class="n">country_name</span><span class="p">]</span>
-
-
-<span class="k">def</span> <span class="nf">convert_data_in_day_count_larger_than_zero_format</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">id_vars</span><span class="p">,</span> <span class="n">value_vars</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">value_name</span><span class="p">):</span>
-    <span class="n">converted</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">id_vars</span><span class="o">=</span><span class="n">id_vars</span><span class="p">,</span> <span class="n">value_vars</span><span class="o">=</span><span class="n">value_vars</span><span class="p">,</span> <span class="n">var_name</span><span class="o">=</span><span class="n">var_name</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="n">value_name</span><span class="p">)</span>
-    <span class="n">converted</span> <span class="o">=</span> <span class="n">converted</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">converted</span><span class="p">[</span><span class="n">value_name</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">converted</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;artificial_day&#39;</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">converted</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="n">converted</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">converted</span><span class="p">[</span><span class="n">value_name</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">get_data_for_country</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">get_data_by_country_name</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">country_column</span><span class="o">=</span><span class="s1">&#39;Country/Region&#39;</span><span class="p">,</span> <span class="n">country_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">convert_data_in_day_count_larger_than_zero_format</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">res</span><span class="p">,</span> <span class="n">id_vars</span><span class="o">=</span><span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span> <span class="p">:</span> <span class="mi">1</span><span class="p">],</span> <span class="n">value_vars</span><span class="o">=</span><span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="n">var_name</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_data_for_country</span><span class="p">(</span><span
+					 class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">get_data_by_country_name</span><span
+					 class="p">(</span><span class="n">data</span><span class="o">=</span><span
+					 class="n">data</span><span class="p">,</span> <span class="n">country_column</span><span class="o">=</span><span
+					 class="s1">'Country/Region'</span><span class="p">,</span> <span class="n">country_name</span><span
+					 class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">convert_data_in_day_count_larger_than_zero_format</span><span
+					 class="p">(</span><span class="n">data</span><span class="o">=</span><span
+					 class="n">res</span><span class="p">,</span> <span class="n">id_vars</span><span class="o">=</span><span
+					 class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span> <span
+					 class="p">:</span> <span class="mi">1</span><span class="p">],</span> <span
+					 class="n">value_vars</span><span class="o">=</span><span class="n">res</span><span
+					 class="o">.</span><span class="n">columns</span><span class="p">[</span><span
+					 class="mi">2</span><span class="p">:],</span> <span class="n">var_name</span><span
+					 class="o">=</span><span class="s1">'date'</span><span class="p">,</span> <span
+					 class="n">value_name</span><span class="o">=</span><span class="s1">'count'</span><span
+					 class="p">)</span>
     <span class="k">return</span> <span class="n">res</span>
-</pre></div>
-
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-
-
-        <div class="nbinteract-hide_in cell border-box-sizing code_cell rendered">
-            <div class="input">
-
-                <div class="inner_cell">
-                    <div class="input_area">
-                        <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_data_for_countries</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">countries</span><span class="p">):</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_data_for_country</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">country</span><span class="p">)</span> <span class="k">for</span> <span class="n">country</span> <span class="ow">in</span> <span class="n">countries</span><span class="p">]</span>
+</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="cell border-box-sizing code_cell rendered nbinteract-hide_in">
+			<div class="input">
+				<div class="inner_cell">
+					<div class="input_area">
+						<div class="highlight hl-ipython3">
+         <pre><span></span><span class="k">def</span> <span class="nf">get_data_for_countries</span><span
+				 class="p">(</span><span class="n">data</span><span class="p">,</span> <span
+				 class="n">countries</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span
+					 class="n">get_data_for_country</span><span class="p">(</span><span class="n">data</span><span
+					 class="p">,</span> <span class="n">country</span><span class="p">)</span> <span
+					 class="k">for</span> <span class="n">country</span> <span class="ow">in</span> <span class="n">countries</span><span
+					 class="p">]</span>
 <span class="c1">#     interesting_data = pd.concat([country_data.iloc[:comparable_days_count] for country_data in data])</span>
     <span class="k">return</span> <span class="n">data</span>
 
-<span class="k">def</span> <span class="nf">draw_line_plot</span><span class="p">(</span><span class="n">day_range</span><span class="p">,</span> <span class="n">countries</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-    <span class="n">countries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">countries</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s1">&#39;Macedonia&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">countries</span><span class="p">:</span>
-        <span class="n">countries</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Macedonia&#39;</span><span class="p">)</span>
-    <span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="s1">&#39;figure&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-    <span class="n">from_day</span> <span class="o">=</span> <span class="n">day_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">to_day</span> <span class="o">=</span> <span class="n">day_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">get_data_for_countries</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">countries</span><span class="p">)</span>
-    <span class="n">interesting_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">country_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">country_data</span><span class="p">[</span><span class="s1">&#39;artificial_day&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">from_day</span><span class="p">)</span> <span class="o">&amp;</span>
-                                                   <span class="p">(</span><span class="n">country_data</span><span class="p">[</span><span class="s1">&#39;artificial_day&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">to_day</span><span class="p">)]</span>
-                                  <span class="k">for</span> <span class="n">country_data</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">draw_line_plot</span><span class="p">(</span><span
+					 class="n">day_range</span><span class="p">,</span> <span class="n">countries</span><span class="p">,</span> <span
+					 class="n">data</span><span class="p">):</span>
+    <span class="n">countries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span
+					 class="n">countries</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">'Macedonia'</span> <span class="ow">not</span> <span class="ow">in</span> <span
+					 class="n">countries</span><span class="p">:</span>
+        <span class="n">countries</span><span class="o">.</span><span class="n">insert</span><span
+					 class="p">(</span><span class="mi">0</span><span class="p">,</span> <span
+					 class="s1">'Macedonia'</span><span class="p">)</span>
+    <span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span
+					 class="n">figure</span><span class="p">(</span><span class="n">num</span><span
+					 class="o">=</span><span class="s1">'figure'</span><span class="p">,</span> <span
+					 class="n">figsize</span><span class="o">=</span><span class="p">(</span><span
+					 class="mi">15</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+    <span class="n">from_day</span> <span class="o">=</span> <span class="n">day_range</span><span
+					 class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">to_day</span> <span class="o">=</span> <span class="n">day_range</span><span class="p">[</span><span
+					 class="mi">1</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">get_data_for_countries</span><span
+					 class="p">(</span><span class="n">data</span><span class="p">,</span> <span
+					 class="n">countries</span><span class="p">)</span>
+    <span class="n">interesting_data</span> <span class="o">=</span> <span class="n">pd</span><span
+					 class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">country_data</span><span
+					 class="o">.</span><span class="n">loc</span><span class="p">[(</span><span
+					 class="n">country_data</span><span class="p">[</span><span class="s1">'artificial_day'</span><span
+					 class="p">]</span> <span class="o">&gt;=</span> <span class="n">from_day</span><span
+					 class="p">)</span> <span class="o">&amp;</span>
+                                                   <span class="p">(</span><span class="n">country_data</span><span
+					 class="p">[</span><span class="s1">'artificial_day'</span><span class="p">]</span> <span class="o">&lt;=</span> <span
+					 class="n">to_day</span><span class="p">)]</span>
+                                  <span class="k">for</span> <span class="n">country_data</span> <span
+					 class="ow">in</span> <span class="n">data</span><span class="p">])</span>
 
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">()</span>
-    <span class="n">line_plot</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;artificial_day&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;Country/Region&#39;</span><span class="p">,</span>
-                             <span class="n">data</span><span class="o">=</span><span class="n">interesting_data</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span
+					 class="n">axes</span><span class="p">()</span>
+    <span class="n">line_plot</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span
+					 class="n">lineplot</span><span class="p">(</span><span class="n">x</span><span
+					 class="o">=</span><span class="s2">"artificial_day"</span><span class="p">,</span> <span class="n">y</span><span
+					 class="o">=</span><span class="s2">"count"</span><span class="p">,</span> <span
+					 class="n">hue</span><span class="o">=</span><span class="s1">'Country/Region'</span><span
+					 class="p">,</span>
+                             <span class="n">data</span><span class="o">=</span><span
+					 class="n">interesting_data</span><span class="p">,</span> <span class="n">ax</span> <span
+					 class="o">=</span> <span class="n">ax</span><span class="p">)</span>
 
-    <span class="n">line_plot</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Релативни денови од кога се појавил првиот случај во таа држава&#39;</span><span class="p">,</span>
-                  <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Број на заразени&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span><span class="o">.</span><span class="n">texts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="s2">&quot;Држава:&quot;</span><span class="p">)</span>
-    <span class="n">line_plot</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MaxNLocator</span><span class="p">(</span><span class="n">integer</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-    <span class="n">line_plot</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MaxNLocator</span><span class="p">(</span><span class="n">integer</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-
+    <span class="n">line_plot</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span
+					 class="n">xlabel</span><span class="o">=</span><span class="s1">'Релативни денови од кога се појавил првиот случај во таа држава'</span><span
+					 class="p">,</span>
+                  <span class="n">ylabel</span><span class="o">=</span><span class="s1">'Број на заразени'</span><span
+					 class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span><span
+					 class="o">.</span><span class="n">texts</span><span class="p">[</span><span
+					 class="mi">0</span><span class="p">]</span><span class="o">.</span><span
+					 class="n">set_text</span><span class="p">(</span><span class="s2">"Држава:"</span><span
+					 class="p">)</span>
+    <span class="n">line_plot</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span
+					 class="n">set_major_locator</span><span class="p">(</span><span class="n">ticker</span><span
+					 class="o">.</span><span class="n">MaxNLocator</span><span class="p">(</span><span
+					 class="n">integer</span><span class="o">=</span><span class="kc">True</span><span
+					 class="p">))</span>
+    <span class="n">line_plot</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span
+					 class="n">set_major_locator</span><span class="p">(</span><span class="n">ticker</span><span
+					 class="o">.</span><span class="n">MaxNLocator</span><span class="p">(</span><span
+					 class="n">integer</span><span class="o">=</span><span class="kc">True</span><span
+					 class="p">))</span>
+    
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
+    
     <span class="k">return</span> <span class="n">line_plot</span>
-</pre></div>
+</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="cell border-box-sizing code_cell rendered nbinteract-hide_in">
+			<div class="input">
+				<div class="inner_cell">
+					<div class="input_area">
+						<div class="highlight hl-ipython3">
+         <pre><span></span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span
+				 class="s1">'description_width'</span><span class="p">:</span> <span class="s1">'initial'</span><span
+				 class="p">}</span>
+<span class="n">layout</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span
+					 class="n">Layout</span><span class="p">(</span><span class="n">display</span><span
+					 class="o">=</span><span class="s1">'flex'</span><span class="p">,</span>
+                <span class="n">justify_content</span><span class="o">=</span><span class="s1">'center'</span><span
+					 class="p">,</span>
+                <span class="n">width</span><span class="o">=</span><span class="s1">'70%'</span><span
+					 class="p">)</span>
 
-                    </div>
-                </div>
-            </div>
 
-        </div>
-
-
-
-        <div class="nbinteract-hide_in cell border-box-sizing code_cell rendered">
-            <div class="input">
-
-                <div class="inner_cell">
-                    <div class="input_area">
-                        <div class=" highlight hl-ipython3"><pre><span></span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;description_width&#39;</span><span class="p">:</span> <span class="s1">&#39;initial&#39;</span><span class="p">}</span>
-<span class="n">layout</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="n">display</span><span class="o">=</span><span class="s1">&#39;flex&#39;</span><span class="p">,</span>
-                <span class="n">justify_content</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
-                <span class="n">width</span><span class="o">=</span><span class="s1">&#39;70%&#39;</span><span class="p">)</span>
-
-
-<span class="n">day_range_chooser</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">IntRangeSlider</span><span class="p">(</span>
-    <span class="n">value</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
+<span class="n">day_range_chooser</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span
+					 class="n">IntRangeSlider</span><span class="p">(</span>
+    <span class="n">value</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span
+					 class="p">,</span> <span class="mi">20</span><span class="p">],</span>
     <span class="nb">min</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="nb">max</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">all_data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="nb">max</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span
+					 class="n">all_data</span><span class="o">.</span><span class="n">columns</span><span
+					 class="p">)</span> <span class="o">-</span> <span class="mi">4</span><span class="p">,</span>
     <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Изберете ранг на денови:&#39;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">'Изберете ранг на денови:'</span><span
+					 class="p">,</span>
     <span class="n">disabled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">continuous_update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span>
+    <span class="n">continuous_update</span><span class="o">=</span><span class="kc">False</span><span
+					 class="p">,</span>
+    <span class="n">orientation</span><span class="o">=</span><span class="s1">'horizontal'</span><span
+					 class="p">,</span>
     <span class="n">readout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">readout_format</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">,</span>
+    <span class="n">readout_format</span><span class="o">=</span><span class="s1">'d'</span><span class="p">,</span>
     <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
     <span class="n">layout</span><span class="o">=</span><span class="n">layout</span>
 <span class="p">)</span>
 
-<span class="n">country_selector</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">SelectMultiple</span><span class="p">(</span>
-    <span class="n">options</span><span class="o">=</span><span class="n">all_data</span><span class="p">[</span><span class="s1">&#39;Country/Region&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
-    <span class="n">value</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Macedonia&#39;</span><span class="p">,</span> <span class="s1">&#39;Serbia&#39;</span><span class="p">,</span> <span class="s1">&#39;Albania&#39;</span><span class="p">,</span> <span class="s1">&#39;Greece&#39;</span><span class="p">,</span> <span class="s1">&#39;Bulgaria&#39;</span><span class="p">],</span>
-    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Изберете држави што сакате да ги споредите:&#39;</span><span class="p">,</span>
+<span class="n">country_selector</span> <span class="o">=</span> <span class="n">widgets</span><span
+					 class="o">.</span><span class="n">SelectMultiple</span><span class="p">(</span>
+    <span class="n">options</span><span class="o">=</span><span class="n">all_data</span><span class="p">[</span><span
+					 class="s1">'Country/Region'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span
+					 class="p">(),</span>
+    <span class="n">value</span><span class="o">=</span><span class="p">[</span><span class="s1">'Macedonia'</span><span
+					 class="p">,</span> <span class="s1">'Serbia'</span><span class="p">,</span> <span class="s1">'Albania'</span><span
+					 class="p">,</span> <span class="s1">'Greece'</span><span class="p">,</span> <span class="s1">'Bulgaria'</span><span
+					 class="p">],</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">'Изберете држави што сакате да ги споредите:'</span><span
+					 class="p">,</span>
     <span class="n">disabled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">style</span> <span class="o">=</span> <span class="n">style</span><span class="p">,</span>
     <span class="n">layout</span><span class="o">=</span><span class="n">layout</span>
 <span class="p">)</span>
-</pre></div>
+</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="cell border-box-sizing code_cell rendered nbinteract-hide_in">
+			<div class="input">
+				<div class="inner_cell">
+					<div class="input_area">
+						<div class="highlight hl-ipython3">
+         <pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">interact</span><span
+				 class="p">(</span><span class="n">draw_line_plot</span><span class="p">,</span> <span class="n">day_range</span><span
+				 class="o">=</span><span class="n">day_range_chooser</span><span class="p">,</span> <span class="n">countries</span><span
+				 class="o">=</span><span class="n">country_selector</span><span class="p">,</span> <span
+				 class="n">data</span><span class="o">=</span><span class="n">fixed</span><span class="p">(</span><span
+				 class="n">all_data</span><span class="p">))</span>
+</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="output_wrapper">
+				<div class="output">
+					<div class="output_area">
+						<div class="output_subarea output_widget_view">
+							<button class="js-nbinteract-widget tooltip">
+								<span class="tooltiptext">Ве молиме почекајте неколку секунди</span>
+								Иницијализирање на статистиката...
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Loads nbinteract package -->
+		<script async="" src="https://unpkg.com/nbinteract-core">
+		</script>
+		<script type="text/javascript">
+            $(document).ready(function () {
+                (function setupNbinteract() {
+                    // If NbInteract hasn't loaded, wait one second and try again
+                    if (window.NbInteract === undefined) {
+                        setTimeout(setupNbinteract, 1000);
+                        return
+                    }
 
-                    </div>
-                </div>
-            </div>
+                    var interact = new window.NbInteract({
+                        spec: 'VikiPeeva/coronavirus-macedonia-tryouts/master',
+                        baseUrl: 'https://mybinder.org',
+                        provider: 'gh',
+                    });
+                    interact.prepare();
 
-        </div>
-
-
-
-        <div class="nbinteract-hide_in cell border-box-sizing code_cell rendered">
-            <div class="input">
-
-                <div class="inner_cell">
-                    <div class="input_area">
-                        <div class=" highlight hl-ipython3"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">interact</span><span class="p">(</span><span class="n">draw_line_plot</span><span class="p">,</span> <span class="n">day_range</span><span class="o">=</span><span class="n">day_range_chooser</span><span class="p">,</span> <span class="n">countries</span><span class="o">=</span><span class="n">country_selector</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">fixed</span><span class="p">(</span><span class="n">all_data</span><span class="p">))</span>
-</pre></div>
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="output_wrapper">
-                <div class="output">
-
-
-                    <div class="output_area">
-
-
-
-
-
-                        <div class="output_subarea output_widget_view ">
-                            <button class="js-nbinteract-widget">
-                                Покажи статистика
-                            </button>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-
-<!-- Loads nbinteract package -->
-<script src="https://unpkg.com/nbinteract-core" async></script>
-<script type="text/javascript">
-    $(document).ready(function() {
-        (function setupNbinteract() {
-            // If NbInteract hasn't loaded, wait one second and try again
-            if (window.NbInteract === undefined) {
-                setTimeout(setupNbinteract, 1000);
-                return
-            }
-
-            console.log('tuka');
-
-            var interact = new window.NbInteract({
-                spec: 'VikiPeeva/coronavirus-macedonia-tryouts/master',
-                baseUrl: 'https://mybinder.org',
-                provider: 'gh',
+                    window.interact = interact
+                })()
             });
-            interact.prepare();
-
-            window.interact = interact
-        })()
-    });
-
-</script>
-    </div>
-  </div>
+		</script>
+	</div>
+</div>
 </body>
+</html>
